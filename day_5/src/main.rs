@@ -30,10 +30,11 @@ fn intcode(numbers : &mut Vec<i32>) {
                 let insert_index = numbers[index+3] as usize;
                 let param_one = handle_parameter_mode(&numbers, param_mode, numbers[index+1], 0);
                 let param_two = handle_parameter_mode(&numbers, param_mode, numbers[index+2], 1);
-                match opcode{
-                    1 => numbers[insert_index] = param_one + param_two,
-                    2 => numbers[insert_index] = param_one * param_two,
-                    _ => panic!("Black magic")
+                if opcode == 1 {
+                    numbers[insert_index] = param_one + param_two;
+                }
+                else{
+                    numbers[insert_index] = param_one * param_two
                 }
                 index+=4;
             },
