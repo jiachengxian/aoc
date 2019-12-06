@@ -2,21 +2,7 @@ from functools import reduce
 
 depth_map = {}
 
-def day6():
-    with open("input.txt") as f:
-        data = f.readlines()
-    data = [x.strip() for x in data]
-
-    directional_adj = build_directional_graph(data)
-    assign_depth(directional_adj,'COM',0)
-    part_1_answer = sum_depth(directional_adj,'COM')
-    print(f"Part one answer is: {part_1_answer}")
-
-    bidirectional_graph = build_bidirectional_graph(data)
-    part_2_answer = bfs('YOU','SAN',bidirectional_graph)
-    print(part_2_answer)
-
-def build_directional_graph(data):
+def build_directed_graph(data):
     graph = {}
     for line in data:
         rel = line.split(')')
@@ -26,7 +12,7 @@ def build_directional_graph(data):
             graph[rel[0]] = [rel[1]]
     return graph
 
-def build_bidirectional_graph(data):
+def build_nondirected_graph(data):
     graph = {}
     for line in data:
         rel = line.split(')')
@@ -59,19 +45,32 @@ def sum_depth(adj, start):
     return sum
 
 def bfs(start, end, adj):
-    #actual start and end due to problem's wording
-    #we want to start on the planet directly orbiting our actual start and end
-    actual_end = adj[end][0]
     explored = []
     
     queue = [(start,0)]
     while queue:
         orbit = queue.pop()
-        if actual_end in adj[orbit[0]]:
+        if end in adj[orbit[0]]:
             return orbit[1]
         if orbit[0] not in explored:
             explored.append(orbit[0])
-            for planet_adj in adj[orbit[0]]:
-                if planet_adj not in explored:
-                    queue.append((planet_adj,orbit[1]+1))
-day6()
+            unexplored_planets = list(filter(lambda p : p not in explored, adj[orbit[0]]))
+            for planet in unexplored_planets:
+                queue.append((planet,orbit[1]+1))
+
+def day6():
+    with open("input.txt") as f:
+        data = f.readlines()
+    data = [x.strip() for x in data]
+
+    directed_graph = build_directed_graph(data)
+    assign_depth(directed_graph,'COM',0)
+    part_1_answer = sum_depth(directed_graph,'COM')
+    print(f"Part one answer is: {part_1_answer}")
+
+    undirected_graph = build_nondirected_graph(data)
+    part_2_answer = bfs(undirected_graph['YOU'][0],'SAN',undirected_graph)
+    print(f"Part two answer is: {part_2_answer}")
+
+if __name__ == "__main__":
+    day6()
