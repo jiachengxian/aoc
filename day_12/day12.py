@@ -7,12 +7,7 @@ IO = [-16, 15, -9]
 EUROPA = [-14, 5, 4]
 GANYMEDE = [2, 0, 6]
 CALLISTO = [-3, 18, 9]
-"""
-IO = [-8, -10, 0]
-EUROPA = [5, 5, 10]
-GANYMEDE = [2, -7, 3]
-CALLISTO = [9, -8, -3]
-"""
+
 MOONS = {
     "IO": IO,
     "EUROPA": EUROPA,
@@ -97,7 +92,7 @@ def day12_2():
     y = calc_cycles(moons_y, initialize_vel(moons_y), 1)
     moons_z = copy.deepcopy(MOONS)
     z = calc_cycles(moons_z, initialize_vel(moons_z), 2)
-    print(f"Part two answer: {lcmm(*[x,y,z])*2}")
+    print(f"Part two answer: {lcmm(x,y,z)*2}")
 
 day12()
 day12_2()
