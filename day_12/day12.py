@@ -1,25 +1,20 @@
-import itertools
 import copy
 import functools
-
+import itertools
 
 IO = [-16, 15, -9]
 EUROPA = [-14, 5, 4]
 GANYMEDE = [2, 0, 6]
 CALLISTO = [-3, 18, 9]
 
-MOONS = {
-    "IO": IO,
-    "EUROPA": EUROPA,
-    "GANYMEDE": GANYMEDE,
-    "CALLISTO": CALLISTO
-}
+MOONS = {"IO": IO, "EUROPA": EUROPA, "GANYMEDE": GANYMEDE, "CALLISTO": CALLISTO}
 
 STEPS = 100
 
+
 def update_vel(moons, vel):
-    for (moon,other) in itertools.combinations(moons.keys(),2):
-        for i in range(0,len(moons[moon])):
+    for (moon, other) in itertools.combinations(moons.keys(), 2):
+        for i in range(0, len(moons[moon])):
             if moons[moon][i] > moons[other][i]:
                 vel[moon][i] -= 1
                 vel[other][i] += 1
@@ -28,25 +23,29 @@ def update_vel(moons, vel):
                 vel[other][i] -= 1
     return vel
 
+
 def apply_vel(moons, vel):
     for moon in moons.keys():
         for i in range(0, len(moons[moon])):
             moons[moon][i] += vel[moon][i]
     return moons
 
+
 def initialize_vel(moons):
     vel = {}
     for moon in moons.keys():
-        vel[moon] = [0,0,0]
+        vel[moon] = [0, 0, 0]
     return vel
+
 
 def calc_total_energy(moons, vel):
     total = 0
     for moon in moons.keys():
         pot = sum(abs(p) for p in moons[moon])
         kin = sum(abs(v) for v in vel[moon])
-        total += pot*kin
+        total += pot * kin
     return total
+
 
 def calc_cycles(moons, vel, coord):
     cycle = {}
@@ -56,34 +55,39 @@ def calc_cycles(moons, vel, coord):
         for moon in moons.keys():
             curr_pos += str(moons[moon][coord])
         if curr_pos in cycle:
-            cycle[curr_pos]+=1
+            cycle[curr_pos] += 1
         else:
             cycle[curr_pos] = 0
         if 0 not in cycle.values():
-            return (i+1)/2
-        vel = update_vel(moons,vel)
-        moons = apply_vel(moons,vel)
-        i+=1
+            return (i + 1) / 2
+        vel = update_vel(moons, vel)
+        moons = apply_vel(moons, vel)
+        i += 1
+
 
 def day12():
     moons = copy.deepcopy(MOONS)
     vel = initialize_vel(moons)
-    for i in range(0,STEPS):
-        vel = update_vel(moons,vel)
-        moons = apply_vel(moons,vel)
-    total_energy = calc_total_energy(moons,vel)
+    for _i in range(0, STEPS):
+        vel = update_vel(moons, vel)
+        moons = apply_vel(moons, vel)
+    total_energy = calc_total_energy(moons, vel)
     print(f"Part one answer: {total_energy}")
 
+
 def gcd(a, b):
-    while b:      
+    while b:
         a, b = b, a % b
     return a
+
 
 def lcm(a, b):
     return a * b // gcd(a, b)
 
-def lcmm(*args): 
+
+def lcmm(*args):
     return functools.reduce(lcm, args)
+
 
 def day12_2():
     moons_x = copy.deepcopy(MOONS)
@@ -93,6 +97,7 @@ def day12_2():
     moons_z = copy.deepcopy(MOONS)
     z = calc_cycles(moons_z, initialize_vel(moons_z), 2)
     print(f"Part two answer: {lcmm(x,y,z)*2}")
+
 
 day12()
 day12_2()
