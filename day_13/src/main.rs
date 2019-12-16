@@ -20,11 +20,9 @@ fn main() -> Result<(), Error> {
     let mut ball_pos = 0;
     let mut paddle_pos = 0;
     while !halt{
-        let mut result = intcode.run();
-        let x = result.0;
-        result = intcode.run();
-        let y = result.0;
-        result = intcode.run();
+        let x = intcode.run().0;
+        let y = intcode.run().0;
+        let result = intcode.run();
         let c = result.0;
         if c == 4 {
             ball_pos = x;
