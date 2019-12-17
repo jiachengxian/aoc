@@ -18,30 +18,28 @@ fn main() {
     println!("Fewest number of steps to reach oxygen system: {}", part_1.0);
     println!("Oxygen system at {:?}", part_1.1);
     let part_2 = fill_oxygen(&mut explored, part_1.1);
-    println!("{}", part_2);
+    println!("Number of minutes to fill space is: {} minutes.", part_2);
 }
 
-fn fill_oxygen(explored: &mut HashMap<(i32,i32),&str>, start: (i32, i32)) -> usize{
-    let mut unfilled = Vec::new();
-    let mut minutes = 0;
-    unfilled.push(start);
-    while !unfilled.is_empty(){
-        let mut next_min = Vec::new();
-        for pos in unfilled.iter(){
-            let neighbors = [(pos.0 + 1, pos.1), (pos.0 - 1, pos.1), (pos.0, pos.1 + 1), (pos.0, pos.1 - 1)];
-            for neighbor_pos in neighbors.iter(){
-                if explored.contains_key(&neighbor_pos) && explored[&neighbor_pos] == "."{
-                    explored.insert(*neighbor_pos, "O");
-                    next_min.push(neighbor_pos.clone());
-                }
-            }
-        }
-        //animate(explored, true);
-        unfilled = next_min.clone();
-        minutes+=1;
+#[derive(Clone, Eq, PartialEq)]
+struct Node {
+    pub dist: usize,
+    pub position: (i32, i32),
+    pub data: Vec<i64>,
+    pub ins_ptr: usize,
+    pub rel_base: i64
+}
+
+impl Ord for Node {
+    fn cmp(&self, other: &Node) -> Ordering {
+        other.dist.cmp(&self.dist).then_with(|| self.position.cmp(&other.position))
     }
-    //extra minute added by last iteration
-    minutes - 1
+}
+
+impl PartialOrd for Node {
+    fn partial_cmp(&self, other: &Node) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
 }
 
 fn find_min_dist(data : Vec<i64>, explored: &mut HashMap<(i32,i32),&str>) -> (usize, (i32, i32)){
@@ -55,7 +53,6 @@ fn find_min_dist(data : Vec<i64>, explored: &mut HashMap<(i32,i32),&str>) -> (us
     while !pq.is_empty(){
         let curr_node = pq.pop().unwrap();
         let curr_pos = curr_node.position;
-        //println!("Current position is: {:?}", curr_pos);
         for i in 1..5{
             let mut intcode = intcode::IntCode::new(curr_node.data.clone(), curr_node.ins_ptr, curr_node.rel_base, i);
             let result = intcode.run();
@@ -91,6 +88,35 @@ fn find_min_dist(data : Vec<i64>, explored: &mut HashMap<(i32,i32),&str>) -> (us
     ret
 }
 
+fn fill_oxygen(explored: &mut HashMap<(i32,i32),&str>, start: (i32, i32)) -> usize{
+    let mut unfilled = Vec::new();
+    let mut minutes = 0;
+    unfilled.push(start);
+    //bfs with depth
+    while !unfilled.is_empty(){
+        let mut next_min = Vec::new();
+        for pos in unfilled.iter(){
+            let neighbors = [
+                (pos.0 + 1, pos.1), 
+                (pos.0 - 1, pos.1), 
+                (pos.0, pos.1 + 1), 
+                (pos.0, pos.1 - 1)
+            ];
+            for neighbor_pos in neighbors.iter(){
+                if explored.contains_key(&neighbor_pos) && explored[&neighbor_pos] == "."{
+                    explored.insert(*neighbor_pos, "O");
+                    next_min.push(neighbor_pos.clone());
+                }
+            }
+        }
+        //animate(explored, true);
+        unfilled = next_min.clone();
+        minutes+=1;
+    }
+    //extra minute added by last iteration
+    minutes - 1
+}
+
 #[allow(dead_code)]
 fn animate(explored: &mut HashMap<(i32,i32),&str>, has_delay: bool){
     //print out exploration
@@ -112,26 +138,5 @@ fn animate(explored: &mut HashMap<(i32,i32),&str>, has_delay: bool){
     //animation delay
     if has_delay{
         std::thread::sleep(std::time::Duration::from_millis(100));
-    }
-}
-
-#[derive(Clone, Eq, PartialEq)]
-struct Node {
-    pub dist: usize,
-    pub position: (i32, i32),
-    pub data: Vec<i64>,
-    pub ins_ptr: usize,
-    pub rel_base: i64
-}
-
-impl Ord for Node {
-    fn cmp(&self, other: &Node) -> Ordering {
-        other.dist.cmp(&self.dist).then_with(|| self.position.cmp(&other.position))
-    }
-}
-
-impl PartialOrd for Node {
-    fn partial_cmp(&self, other: &Node) -> Option<Ordering> {
-        Some(self.cmp(other))
     }
 }
