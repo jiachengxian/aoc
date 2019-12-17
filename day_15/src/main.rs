@@ -2,6 +2,7 @@ use std::io::Error;
 use std::fs;
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
+use std::collections::HashMap;
 
 mod intcode;
 
@@ -13,30 +14,82 @@ fn main() {
             .split(',')
             .map(|s| s.parse::<i64>().unwrap())
             .collect();
-
-    let mut intcode = intcode::IntCode::new(_numbers.to_vec(), 0, 0, 0);
-    let mut halt = false;
+    let mut explored = HashMap::new();
+    let part_1 = find_min_dist(_numbers.to_vec(), &mut explored);
+    println!("part 1: {}",part_1);
 }
 
-fn find_min_dist(intcode : &mut intcode::IntCode){
-    let mut halt = false;
+fn find_min_dist(data : Vec<i64>, explored: &mut HashMap<(i32,i32),&str>) -> usize{
     let mut pq = BinaryHeap::new();
-    pq.push(Node{dist: 0, position: (0,0)});
-    while !halt{
-        let curr_pos = pq.pop();
+    let mut ret = 0;
+    explored.insert((0,0),".");
+    pq.push(Node{dist: 0, position: (0,0), data: data.clone(), ins_ptr: 0, rel_base: 0});
+    while !pq.is_empty(){
+        let curr_node = pq.pop().unwrap();
+        let curr_pos = curr_node.position;
+        //println!("Current position is: {:?}", curr_pos);
         for i in 1..5{
-            intcode.set_input(i);
+            let mut intcode = intcode::IntCode::new(curr_node.data.clone(), curr_node.ins_ptr, curr_node.rel_base, i);
             let result = intcode.run();
             let output = result.0;
-            halt = result.4;
+            let new_pos = match i {
+                1 => (curr_pos.0 + 1, curr_pos.1),
+                2 => (curr_pos.0 - 1, curr_pos.1),
+                3 => (curr_pos.0, curr_pos.1 -1),
+                4 => (curr_pos.0, curr_pos.1 + 1),
+                _ => panic!("Unexpected input type encontered")
+            };
+            if explored.contains_key(&new_pos){
+                continue;
+            }
+            match output {
+                0 => {
+                    explored.insert(new_pos, "#");
+                    //println!("Hit wall at {:?}", new_pos);
+                    continue;  
+                },
+                1 => {
+                    pq.push(Node{dist:curr_node.dist + 1, position: new_pos, data: result.3.clone(), ins_ptr: result.1, rel_base: result.2});
+                    explored.insert(new_pos, ".");
+                    //println!("Successfully moved to {:?}", new_pos);
+                },
+                2 => {
+                    explored.insert(new_pos, "2");
+                    //println!("Found trasure at {:?}", new_pos);
+                    ret = curr_node.dist + 1;
+                },
+                _ => panic!("Unexpected output type encountered")
+            };
+            //print out exploration
+            for y in (-25..25).rev(){
+                let mut line = String::new();
+                for x in -25..25{
+                    if !explored.contains_key(&(x,y)){
+                        line.push(' ');
+                    }else if explored[&(x,y)] == "#" {
+                        line.push('#');
+                    }else if explored[&(x,y)] == "."{
+                        line.push('.');
+                    }else if explored[&(x,y)] == "2"{
+                        line.push('O');
+                    }
+                }
+                println!("{}",line);
+            }
+            //animation delay
+            //std::thread::sleep(std::time::Duration::from_millis(100));
         }
     }
+    ret
 }
 
-#[derive(Copy, Clone, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq)]
 struct Node {
-    dist: usize,
-    position: (i32, i32)
+    pub dist: usize,
+    pub position: (i32, i32),
+    pub data: Vec<i64>,
+    pub ins_ptr: usize,
+    pub rel_base: i64
 }
 
 impl Ord for Node {
