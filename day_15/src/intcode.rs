@@ -18,6 +18,7 @@ impl IntCode {
         }
     }
     #[inline]
+    #[allow(dead_code)]
     pub fn set_input(&mut self, input: i64) {
         self.input = input;
     }
