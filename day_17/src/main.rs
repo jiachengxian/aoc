@@ -10,9 +10,8 @@ fn main() {
             .split(',')
             .map(|s| s.parse::<i64>().unwrap())
             .collect();
-    let camera_output = parse_camera_output(&mut numbers);
-    //render(camera_output);
-    println!("{}",calc_intersection_alignment(camera_output));
+    let mut camera_output = parse_camera_output(&mut numbers);
+    println!("Part 1 answer is: {}",calc_intersection_alignment(&mut camera_output));
 }
 
 fn parse_camera_output(data : &mut Vec<i64>) -> HashMap<(usize, usize), char> {
@@ -26,17 +25,31 @@ fn parse_camera_output(data : &mut Vec<i64>) -> HashMap<(usize, usize), char> {
         let result = intcode.run();
         halt = result.4;
         let output = result.0;
+        camera_output.insert((x,y), output as u8 as char);
+        x += 1;
         if output == 10 {
             y += 1;
             x = 0;
         }
-        camera_output.insert((x,y), output as u8 as char);
-        x += 1;
     }
     camera_output
 }
 
-fn render(map : HashMap<(usize, usize), char>) {
+fn calc_intersection_alignment(map : &mut HashMap<(usize, usize), char>) -> usize {
+    let filtered : Vec<&(usize,usize)> = map.keys()
+        .filter(|x|
+            map[&(x.0,x.1)] == '#' && 
+            x.0 != 0 && x.1 !=0 &&
+            map.contains_key(&(x.0+1,x.1)) && map[&(x.0+1,x.1)] == '#' &&
+            map.contains_key(&(x.0-1,x.1)) && map[&(x.0-1,x.1)] == '#' &&
+            map.contains_key(&(x.0,x.1+1)) && map[&(x.0,x.1+1)] == '#' &&
+            map.contains_key(&(x.0,x.1-1)) && map[&(x.0,x.1-1)] == '#')
+        .collect();
+    filtered.iter().fold(0, |acc, x| acc + x.0*x.1)
+}
+
+#[allow(dead_code)]
+fn render(map : &HashMap<(usize, usize), char>) {
     for y in 0..50{
         let mut line = String::new();
         for x in 0..50{
@@ -51,20 +64,3 @@ fn render(map : HashMap<(usize, usize), char>) {
     }
 }
 
-fn calc_intersection_alignment(map : HashMap<(usize, usize), char>) -> usize {
-    let mut sum = 0;
-    let filtered_map = map.keys().filter(|x| map[x] == '#');
-    for y in 1..49{
-        for x in 1..49{
-            if map.contains_key(&(x,y)) && map[&(x,y)] == '#' &&
-                map[&(x+1,y)] == '#' &&
-                map[&(x-1,y)] == '#' &&
-                map[&(x,y+1)] == '#' &&
-                map[&(x,y-1)] == '#'
-            {
-                sum+=1;
-            }
-        }
-    }
-    sum
-}
