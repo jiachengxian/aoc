@@ -60,6 +60,17 @@ def build_quantity_map(start, map, quant_map):
             return
         build_quantity_map(f"{scaled_val} {other_name}", map, quant_map)
 
+def estimate_fuel(start_quant, map, max_ore):
+    estimate = start_quant
+    while True:
+        #reset containers
+        quant_map = {}
+        excess = {}
+        build_quantity_map(f"{estimate} FUEL", map, quant_map)
+        if quant_map['ORE'] > max_ore:
+            return estimate - 1
+        estimate = max(estimate, math.floor(max_ore * estimate / quant_map['ORE'])) + 1
+
 def day14():
     with open("input.txt") as f:
         input = f.readlines()
@@ -71,17 +82,13 @@ def day14():
         rs = line[1][0].split(' ')
         map[rs[1]] = (rs[0], line[0])
 
-    quant_map = {}
-    build_quantity_map('1 FUEL', map, quant_map)
-    print(f"We need {quant_map['ORE']} ore to produce 1 FUEL")
-    """
-    print(f"Excess in one run: {excess}")
-    num_runs_without_excess = math.floor(1000000000000 / quant_map['ORE'])
-    remainder = 1000000000000 % quant_map['ORE']
-    print(num_runs_without_excess)
-    print(remainder)
-    for c in excess.keys():
-        excess[c] *= num_runs_without_excess
-    print(excess)
-    """
+    #quant_map = {}
+    #build_quantity_map('1 FUEL', map, quant_map)
+    #print(f"We need {quant_map['ORE']} ore to produce 1 FUEL")
+    
+    START = 2
+    MAX_ORE = 10**12
+    estimate = estimate_fuel(START, map, MAX_ORE)
+    print(f"Maximum amount of fuel we can produce with {MAX_ORE} ore is {estimate}")
+
 day14()
