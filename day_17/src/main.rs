@@ -12,6 +12,9 @@ fn main() {
             .collect();
     let mut camera_output = parse_camera_output(&mut numbers);
     println!("Part 1 answer is: {}",calc_intersection_alignment(&mut camera_output));
+    //render(&camera_output);
+    
+    
 }
 
 fn parse_camera_output(data : &mut Vec<i64>) -> HashMap<(usize, usize), char> {
@@ -62,5 +65,25 @@ fn render(map : &HashMap<(usize, usize), char>) {
         }
         println!("{}",line);
     }
+}
+
+fn find_starting_point(map : &HashMap<(usize, usize), char>) -> (usize, usize) {
+    map.keys().filter(|&x| map[x] == '^').next().unwrap().clone()
+}
+
+fn get_scaffold_traversal_path(map : &HashMap<(usize, usize), char>) -> String {
+    let mut path = String::new();
+    let mut curr_pos = find_starting_point(map);
+    let mut curr_dir = map[&curr_pos];
+    loop{
+        match curr_dir {
+            '^' => continue,
+            '>' => continue,
+            'v' => continue,
+            '<' => continue,
+            _ => panic!("Unexpected direction symbol encountered")
+        }
+    }
+    path
 }
 
