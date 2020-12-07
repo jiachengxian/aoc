@@ -19,8 +19,29 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.readInputToStringArr = void 0;
+exports.mapFuncOnInputChunk = exports.readInputToStringArr = void 0;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const readInputToStringArr = (fileName) => fs.readFileSync(path.join(__dirname, fileName), 'utf8').split(/\r?\n/);
 exports.readInputToStringArr = readInputToStringArr;
+/**
+ * Run provided function on each input chunk (separated by empty line)
+ */
+const mapFuncOnInputChunk = (input, mapFunc) => {
+    let inputChunk = [];
+    let result = [];
+    let i = 0;
+    while (i < input.length) {
+        let currLine = input[i];
+        if (currLine === '') {
+            result.push(mapFunc(inputChunk));
+            inputChunk = [];
+        }
+        else {
+            inputChunk.push(currLine);
+        }
+        i++;
+    }
+    return result;
+};
+exports.mapFuncOnInputChunk = mapFuncOnInputChunk;
