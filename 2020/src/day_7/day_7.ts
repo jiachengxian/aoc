@@ -1,4 +1,3 @@
-import { parse } from 'path';
 import {readInputToStringArr} from '../input';
 
 const parseRuleReverse = (input: string, map: Map<string, string[]>): void => {
