@@ -24,3 +24,7 @@ export const mapFuncOnInputChunk = (input: string[], mapFunc: Function): any[] =
 	}
 	return result;
 }
+
+export const printInput = (input: string[]): void => {
+	input.map(line => console.log(line));
+}

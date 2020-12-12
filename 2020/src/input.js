@@ -19,7 +19,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mapFuncOnInputChunk = exports.readInputToStringArr = void 0;
+exports.printInput = exports.mapFuncOnInputChunk = exports.readInputToStringArr = void 0;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const readInputToStringArr = (fileName) => fs.readFileSync(path.join(__dirname, fileName), 'utf8').split(/\r?\n/);
@@ -45,3 +45,7 @@ const mapFuncOnInputChunk = (input, mapFunc) => {
     return result;
 };
 exports.mapFuncOnInputChunk = mapFuncOnInputChunk;
+const printInput = (input) => {
+    input.map(line => console.log(line));
+};
+exports.printInput = printInput;
