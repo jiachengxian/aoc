@@ -1,4 +1,4 @@
-import {readInputToStringArr, printInput} from '../input';
+import {readInputToStringArr} from '../input';
 import {cloneDeep} from 'lodash';
 
 const isSeatOccupyable = (input:string[], xPos: number, yPos: number, useLineOfSight: boolean): boolean => {
