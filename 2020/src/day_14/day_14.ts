@@ -1,4 +1,3 @@
-import { result } from 'lodash';
 import {readInputToStringArr} from '../input';
 
 const MASK_SIZE = 36;
