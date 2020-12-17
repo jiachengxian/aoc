@@ -119,9 +119,6 @@ const reduceFields = (fields) => {
             break;
         }
         let toRemove = singleFields.map(l => l[0]).filter(f => !found.has(f))[0];
-        if (toRemove === undefined) {
-            break;
-        }
         found.add(toRemove);
         fields = removeField(toRemove, fields);
     }
